@@ -1,0 +1,37 @@
+#!/bin/bash
+# check and log if a host is reachable by ping
+
+#CONFIGURATION
+
+PAUSE=20
+#how many failed pings before log
+TESTS=2
+
+#SCRIPT
+
+#initialize
+#declare -i temperatur
+temperatur=0
+MISSED=0
+
+
+while true; do
+ 	eval $(date +Y=%Y\;m=%m\;d=%d\;H=%H\;M=%M)
+	if [[ "$M" == "05" ]] || [[ "$M" == "15" ]] || [[ "$M" == "25" ]] || [[ "$M" == "35" ]] || [[ "$M" == "45" ]] || [[ "$M" == "55" ]]; then
+		temperatur=$(/usr/local/src/lol_dht22/loldht | cut -c7-8)
+		echo $temperatur
+		echo $MISSED
+		if [ $temperatur -ge 25 ]; then ((MISSED++)) 
+		else
+			if [ $MISSED -ge 1 ]; then
+			/usr/local/src/raspberry-remote/send 11111 1 1;
+		fi
+		MISSED=0
+		fi;
+  			if [ $MISSED -eq 1 ]; then
+			/usr/local/src/raspberry-remote/send 11111 1 0;
+  		fi
+ 	fi
+	 sleep $PAUSE;
+
+done
